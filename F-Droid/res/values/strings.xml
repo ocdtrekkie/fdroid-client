@@ -331,5 +331,9 @@
     <string name="wifi_warning_personal">Best bet</string>
 
     <string name="uninstall_update_confirm">Do you want to replace this app with the factory version?</string>
-    <string name="uninstall_application_confirm">Do you want to uninstall this app?</string>
+    <string name="uninstall_confirm">Do you want to uninstall this app?</string>
+    <string name="privacyPerms">Privacy</string>
+    <string name="devicePerms">Device Access</string>
+    <string name="install_confirm">Do you want to install this application?
+            It will get access to:</string>
 </resources>

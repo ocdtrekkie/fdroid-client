@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageDeleteObserver;
 import android.content.pm.IPackageInstallObserver;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
@@ -133,6 +134,11 @@ public class SystemInstaller extends Installer {
 
     @Override
     protected void installPackageInternal(File apkFile) throws AndroidNotCompatibleException {
+        PackageInfo pkgInfo = mPm.getPackageArchiveInfo(apkFile.getPath(),
+                PackageManager.GET_PERMISSIONS);
+    }
+
+    private void doInstallPackageInternal(File apkFile) throws AndroidNotCompatibleException {
         Uri packageURI = Uri.fromFile(apkFile);
         try {
             mInstallMethod.invoke(mPm, packageURI, mInstallObserver,
@@ -165,7 +171,7 @@ public class SystemInstaller extends Installer {
         if (isUpdate) {
             messageId = R.string.uninstall_update_confirm;
         } else {
-            messageId = R.string.uninstall_application_confirm;
+            messageId = R.string.uninstall_confirm;
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);

@@ -79,10 +79,10 @@ public class AppSecurityPermissions {
     static class MyPermissionGroupInfo extends PermissionGroupInfo {
         CharSequence mLabel;
 
-        final ArrayList<MyPermissionInfo> mNewPermissions = new ArrayList<>();
-        final ArrayList<MyPermissionInfo> mPersonalPermissions = new ArrayList<>();
-        final ArrayList<MyPermissionInfo> mDevicePermissions = new ArrayList<>();
-        final ArrayList<MyPermissionInfo> mAllPermissions = new ArrayList<>();
+        final List<MyPermissionInfo> mNewPermissions = new ArrayList<>();
+        final List<MyPermissionInfo> mPersonalPermissions = new ArrayList<>();
+        final List<MyPermissionInfo> mDevicePermissions = new ArrayList<>();
+        final List<MyPermissionInfo> mAllPermissions = new ArrayList<>();
 
         MyPermissionGroupInfo(PermissionInfo perm) {
             name = perm.packageName;
@@ -138,7 +138,6 @@ public class AppSecurityPermissions {
         MyPermissionGroupInfo mGroup;
         MyPermissionInfo mPerm;
         AlertDialog mDialog;
-        private boolean mShowRevokeUI = false;
         private String mPackageName;
 
         public PermissionItemView(Context context, AttributeSet attrs) {
@@ -147,11 +146,9 @@ public class AppSecurityPermissions {
         }
 
         public void setPermission(MyPermissionGroupInfo grp, MyPermissionInfo perm,
-                boolean first, CharSequence newPermPrefix, String packageName,
-                boolean showRevokeUI) {
+                boolean first, CharSequence newPermPrefix, String packageName) {
             mGroup = grp;
             mPerm = perm;
-            mShowRevokeUI = showRevokeUI;
             mPackageName = packageName;
 
             ImageView permGrpIcon = (ImageView) findViewById(R.id.perm_icon);
@@ -359,18 +356,15 @@ public class AppSecurityPermissions {
         }
     }
     
-    public int getPermissionCount() {
-        return getPermissionCount(WHICH_ALL);
-    }
-
     private List<MyPermissionInfo> getPermissionList(MyPermissionGroupInfo grp, int which) {
-        if (which == WHICH_NEW) {
+        switch (which) {
+        case WHICH_NEW:
             return grp.mNewPermissions;
-        } else if (which == WHICH_PERSONAL) {
+        case WHICH_PERSONAL:
             return grp.mPersonalPermissions;
-        } else if (which == WHICH_DEVICE) {
+        case WHICH_DEVICE:
             return grp.mDevicePermissions;
-        } else {
+        default:
             return grp.mAllPermissions;
         }
     }
@@ -383,24 +377,12 @@ public class AppSecurityPermissions {
         return N;
     }
 
-    public View getPermissionsView() {
-        return getPermissionsView(WHICH_ALL, false);
-    }
-
-    public View getPermissionsViewWithRevokeButtons() {
-        return getPermissionsView(WHICH_ALL, true);
-    }
-
     public View getPermissionsView(int which) {
-        return getPermissionsView(which, false);
-    }
-
-    private View getPermissionsView(int which, boolean showRevokeUI) {
         LinearLayout permsView = (LinearLayout) mInflater.inflate(R.layout.app_perms_summary, null);
         LinearLayout displayList = (LinearLayout) permsView.findViewById(R.id.perms_list);
         View noPermsView = permsView.findViewById(R.id.no_permissions);
 
-        displayPermissions(mPermGroupsList, displayList, which, showRevokeUI);
+        displayPermissions(mPermGroupsList, displayList, which);
         if (displayList.getChildCount() <= 0) {
             noPermsView.setVisibility(View.VISIBLE);
         }
@@ -413,7 +395,7 @@ public class AppSecurityPermissions {
      * list of permission descriptions.
      */
     private void displayPermissions(List<MyPermissionGroupInfo> groups,
-            LinearLayout permListView, int which, boolean showRevokeUI) {
+            LinearLayout permListView, int which) {
         permListView.removeAllViews();
 
         int spacing = (int)(8*mContext.getResources().getDisplayMetrics().density);
@@ -424,7 +406,7 @@ public class AppSecurityPermissions {
             for (int j=0; j<perms.size(); j++) {
                 MyPermissionInfo perm = perms.get(j);
                 View view = getPermissionItemView(grp, perm, j == 0,
-                        which != WHICH_NEW ? mNewPermPrefix : null, showRevokeUI);
+                        which != WHICH_NEW ? mNewPermPrefix : null);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -443,19 +425,19 @@ public class AppSecurityPermissions {
     }
 
     private PermissionItemView getPermissionItemView(MyPermissionGroupInfo grp,
-            MyPermissionInfo perm, boolean first, CharSequence newPermPrefix, boolean showRevokeUI) {
+            MyPermissionInfo perm, boolean first, CharSequence newPermPrefix) {
         return getPermissionItemView(mContext, mInflater, grp, perm, first, newPermPrefix,
-                mPackageName, showRevokeUI);
+                mPackageName);
     }
 
     private static PermissionItemView getPermissionItemView(Context context, LayoutInflater inflater,
             MyPermissionGroupInfo grp, MyPermissionInfo perm, boolean first,
-            CharSequence newPermPrefix, String packageName, boolean showRevokeUI) {
+            CharSequence newPermPrefix, String packageName) {
             PermissionItemView permView = (PermissionItemView)inflater.inflate(
                 (perm.flags & PermissionInfo.FLAG_COSTS_MONEY) != 0
                         ? R.layout.app_permission_item_money : R.layout.app_permission_item,
                 null);
-        permView.setPermission(grp, perm, first, newPermPrefix, packageName, showRevokeUI);
+        permView.setPermission(grp, perm, first, newPermPrefix, packageName);
         return permView;
     }
 

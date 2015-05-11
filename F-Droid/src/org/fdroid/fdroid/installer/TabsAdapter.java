@@ -44,7 +44,7 @@ public class TabsAdapter extends PagerAdapter
     private final Context mContext;
     private final TabHost mTabHost;
     private final ViewPager mViewPager;
-    private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+    private final ArrayList<TabInfo> mTabs = new ArrayList<>();
     private final Rect mTempRect = new Rect();
     private TabHost.OnTabChangeListener mOnTabChangeListener;
 

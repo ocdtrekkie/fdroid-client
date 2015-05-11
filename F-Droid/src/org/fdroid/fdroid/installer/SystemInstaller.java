@@ -134,6 +134,9 @@ public class SystemInstaller extends Installer {
 
     @Override
     protected void installPackageInternal(File apkFile) throws AndroidNotCompatibleException {
+        Intent intent = new Intent();
+        intent.setData(Uri.fromFile(apkFile));
+        intent.setClass(mContext, InstallConfirmActivity.class);
         PackageInfo pkgInfo = mPm.getPackageArchiveInfo(apkFile.getPath(),
                 PackageManager.GET_PERMISSIONS);
     }

@@ -28,7 +28,7 @@
         android:layout_height="match_parent">
 
     <TextView
-            android:id="@+id/install_confirm_question"
+            android:id="@+id/install_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/install_confirm"

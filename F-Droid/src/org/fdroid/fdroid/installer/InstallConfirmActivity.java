@@ -44,10 +44,10 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
     private static final String TAG = "InstallConfirmActivity";
 
     private Uri mPackageURI;
+    private Intent intent;
 
     PackageManager mPm;
     PackageInfo mPkgInfo;
-    ApplicationInfo mSourceInfo;
 
     private ApplicationInfo mAppInfo = null;
 
@@ -63,9 +63,9 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
     private static final String TAB_ID_NEW = "new";
 
     private void startInstallConfirm() {
-        TabHost tabHost = (TabHost)findViewById(android.R.id.tabhost);
+        TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         tabHost.setup();
-        ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         TabsAdapter adapter = new TabsAdapter(this, tabHost, viewPager);
         adapter.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
@@ -87,7 +87,7 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
                         : R.string.install_confirm_update;
                 mScrollView = new CaffeinatedScrollView(this);
                 mScrollView.setFillViewport(true);
-                boolean newPermissionsFound =
+                final boolean newPermissionsFound =
                         (perms.getPermissionCount(AppSecurityPermissions.WHICH_NEW) > 0);
                 if (newPermissionsFound) {
                     permVisible = true;
@@ -114,15 +114,15 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
                 if (mScrollView == null) {
                     mScrollView = (CaffeinatedScrollView)root.findViewById(R.id.scrollview);
                 }
+                final ViewGroup privacyList = (ViewGroup) root.findViewById(R.id.privacylist);
                 if (NP > 0) {
-                    ((ViewGroup)root.findViewById(R.id.privacylist)).addView(
-                            perms.getPermissionsView(AppSecurityPermissions.WHICH_PERSONAL));
+                    privacyList.addView(perms.getPermissionsView(AppSecurityPermissions.WHICH_PERSONAL));
                 } else {
-                    root.findViewById(R.id.privacylist).setVisibility(View.GONE);
+                    privacyList.setVisibility(View.GONE);
                 }
+                final ViewGroup deviceList = (ViewGroup) root.findViewById(R.id.devicelist);
                 if (ND > 0) {
-                    ((ViewGroup)root.findViewById(R.id.devicelist)).addView(
-                            perms.getPermissionsView(AppSecurityPermissions.WHICH_DEVICE));
+                    deviceList.addView(perms.getPermissionsView(AppSecurityPermissions.WHICH_DEVICE));
                 } else {
                     root.findViewById(R.id.devicelist).setVisibility(View.GONE);
                 }
@@ -174,7 +174,7 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
         String pkgName = mPkgInfo.packageName;
         // Check if there is already a package on the device with this name
         // but it has been renamed to something else.
-        String[] oldName = mPm.canonicalToCurrentPackageNames(new String[] { pkgName });
+        final String[] oldName = mPm.canonicalToCurrentPackageNames(new String[] { pkgName });
         if (oldName != null && oldName.length > 0 && oldName[0] != null) {
             pkgName = oldName[0];
             mPkgInfo.packageName = pkgName;
@@ -203,22 +203,15 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
 
         mPm = getPackageManager();
 
-        final Intent intent = getIntent();
+        intent = getIntent();
         mPackageURI = intent.getData();
 
         //final PackageUtil.AppSnippet as;
 
-        // Check for parse errors
-        //if (parsed == null) {
-            //Log.w(TAG, "Parse error when parsing manifest. Discontinuing installation");
-            ////setPmResult(PackageManager.INSTALL_FAILED_INVALID_APK);
-            //return;
-        //}
         mPkgInfo = mPm.getPackageArchiveInfo(mPackageURI.getPath(),
                 PackageManager.GET_PERMISSIONS);
         //as = PackageUtil.getAppSnippet(this, mPkgInfo.applicationInfo, sourceFile);
 
-        //set view
         setContentView(R.layout.install_start);
         mInstallConfirm = findViewById(R.id.install_confirm_panel);
         mInstallConfirm.setVisibility(View.INVISIBLE);
@@ -240,15 +233,13 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
     public void onClick(View v) {
         if (v == mOk) {
             if (mOkCanInstall || mScrollView == null) {
-                // Start subactivity to actually install the application
-                setResult(RESULT_OK);
+                setResult(RESULT_OK, intent);
                 finish();
             } else {
                 mScrollView.pageScroll(View.FOCUS_DOWN);
             }
         } else if (v == mCancel) {
-            // Cancel and finish
-            setResult(RESULT_CANCELED);
+            setResult(RESULT_CANCELED, intent);
             finish();
         }
     }

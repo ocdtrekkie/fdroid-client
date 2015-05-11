@@ -158,22 +158,22 @@ abstract public class Installer {
         return null;
     }
 
-    public static Installer getUnattendedInstaller(Context context, PackageManager pm,
+    public static Installer getUnattendedInstaller(Activity activity, PackageManager pm,
             InstallerCallback callback) throws AndroidNotCompatibleException {
 
         // if root installer has been activated in preferences -> RootInstaller
         boolean useRootInstaller = Preferences.get().isRootInstallerEnabled();
         if (useRootInstaller) {
             try {
-                return new RootInstaller(context, pm, callback);
+                return new RootInstaller(activity, pm, callback);
             } catch (AndroidNotCompatibleException e) {
                 Log.e(TAG, "Android not compatible with RootInstaller!", e);
             }
         }
 
-        if (hasSystemPermissions(context, pm)) {
+        if (hasSystemPermissions(activity, pm)) {
             // we have system permissions!
-            return new SystemInstaller(context, pm, callback);
+            return new SystemInstaller(activity, pm, callback);
         } else {
             // nope!
             throw new AndroidNotCompatibleException();

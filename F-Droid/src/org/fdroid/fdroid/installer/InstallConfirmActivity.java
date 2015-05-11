@@ -42,8 +42,6 @@ import org.fdroid.fdroid.R;
 
 public class InstallConfirmActivity extends Activity implements OnCancelListener, OnClickListener {
 
-    private static final String TAG = "InstallConfirmActivity";
-
     private Uri mPackageURI;
     private Intent intent;
 

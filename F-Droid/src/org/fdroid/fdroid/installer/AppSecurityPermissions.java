@@ -64,7 +64,6 @@ public class AppSecurityPermissions {
     public static final int WHICH_PERSONAL = 1<<0;
     public static final int WHICH_DEVICE = 1<<1;
     public static final int WHICH_NEW = 1<<2;
-    public static final int WHICH_ALL = 0xffff;
 
     private final static String TAG = "AppSecurityPermissions";
     private final Context mContext;
@@ -74,7 +73,6 @@ public class AppSecurityPermissions {
     private final List<MyPermissionGroupInfo> mPermGroupsList = new ArrayList<>();
     private final PermissionGroupInfoComparator mPermGroupComparator = new PermissionGroupInfoComparator();
     private final PermissionInfoComparator mPermComparator = new PermissionInfoComparator();
-    private final List<MyPermissionInfo> mPermsList = new ArrayList<>();
     private final CharSequence mNewPermPrefix;
     private String mPackageName;
 
@@ -140,7 +138,6 @@ public class AppSecurityPermissions {
         MyPermissionGroupInfo mGroup;
         MyPermissionInfo mPerm;
         AlertDialog mDialog;
-        private String mPackageName;
 
         public PermissionItemView(Context context, AttributeSet attrs) {
             super(context, attrs);
@@ -151,7 +148,6 @@ public class AppSecurityPermissions {
                 boolean first, CharSequence newPermPrefix, String packageName) {
             mGroup = grp;
             mPerm = perm;
-            mPackageName = packageName;
 
             ImageView permGrpIcon = (ImageView) findViewById(R.id.perm_icon);
             TextView permNameView = (TextView) findViewById(R.id.perm_name);
@@ -249,32 +245,9 @@ public class AppSecurityPermissions {
             }
             extractPerms(info, permSet, installedPkgInfo);
         }
+        List<MyPermissionInfo> mPermsList = new ArrayList<>();
         mPermsList.addAll(permSet);
         setPermissions(mPermsList);
-    }
-
-    /**
-     * Utility to retrieve a view displaying a single permission.  This provides
-     * the old UI layout for permissions; it is only here for the device admin
-     * settings to continue to use.
-     */
-    public static View getPermissionItemView(Context context,
-            CharSequence grpName, CharSequence description, boolean dangerous) {
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        final Drawable icon = context.getResources().getDrawable(dangerous
-                ? R.drawable.ic_bullet_key_permission : R.drawable.ic_text_dot);
-        return getPermissionItemViewOld(context, inflater, grpName,
-                description, dangerous, icon);
-    }
-    
-    private void getPermissionsForPackage(String packageName, Set<MyPermissionInfo> permSet) {
-        try {
-            PackageInfo pkgInfo = mPm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-            extractPerms(pkgInfo, permSet, pkgInfo);
-        } catch (NameNotFoundException e) {
-            Log.w(TAG, "Couldn't retrieve permissions for package: " + packageName);
-        }
     }
 
     private int[] getRequestedPermissionFlags(PackageInfo info) {
@@ -439,23 +412,23 @@ public class AppSecurityPermissions {
 
     private PermissionItemView getPermissionItemView(MyPermissionGroupInfo grp,
             MyPermissionInfo perm, boolean first, CharSequence newPermPrefix) {
-        return getPermissionItemView(mContext, mInflater, grp, perm, first, newPermPrefix,
+        return getPermissionItemView(mInflater, grp, perm, first, newPermPrefix,
                 mPackageName);
     }
 
-    private static PermissionItemView getPermissionItemView(Context context, LayoutInflater inflater,
+    private static PermissionItemView getPermissionItemView(LayoutInflater inflater,
             MyPermissionGroupInfo grp, MyPermissionInfo perm, boolean first,
             CharSequence newPermPrefix, String packageName) {
-            PermissionItemView permView = (PermissionItemView)inflater.inflate(
+        PermissionItemView permView = (PermissionItemView)inflater.inflate(
                 (perm.flags & PermissionInfo.FLAG_COSTS_MONEY) != 0
-                        ? R.layout.app_permission_item_money : R.layout.app_permission_item,
+                ? R.layout.app_permission_item_money : R.layout.app_permission_item,
                 null);
         permView.setPermission(grp, perm, first, newPermPrefix, packageName);
         return permView;
     }
 
-    private static View getPermissionItemViewOld(Context context, LayoutInflater inflater,
-            CharSequence grpName, CharSequence permList, boolean dangerous, Drawable icon) {
+    private static View getPermissionItemViewOld(LayoutInflater inflater,
+            CharSequence grpName, CharSequence permList, Drawable icon) {
         View permView = inflater.inflate(R.layout.app_permission_item_old, null);
 
         TextView permGrpView = (TextView) permView.findViewById(R.id.permission_group);

@@ -21,23 +21,21 @@ package org.fdroid.fdroid.installer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageDeleteObserver;
 import android.content.pm.IPackageInstallObserver;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.fdroid.fdroid.R;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
-
-import org.fdroid.fdroid.R;
 
 /**
  * Installer based on using internal hidden APIs of the Android OS, which are

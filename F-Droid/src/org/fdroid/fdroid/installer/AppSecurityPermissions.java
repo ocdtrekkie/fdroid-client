@@ -18,7 +18,6 @@ package org.fdroid.fdroid.installer;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -35,7 +34,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.fdroid.fdroid.R;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -46,8 +49,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.fdroid.fdroid.R;
 
 /**
  * This class contains the SecurityPermissions view implementation.

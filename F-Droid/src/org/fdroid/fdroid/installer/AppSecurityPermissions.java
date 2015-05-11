@@ -26,6 +26,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.PermissionGroupInfo;
 import android.content.pm.PermissionInfo;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -260,7 +261,7 @@ public class AppSecurityPermissions {
             CharSequence grpName, CharSequence description, boolean dangerous) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        final Drawable icon = context.getDrawable(dangerous
+        final Drawable icon = context.getResources().getDrawable(dangerous
                 ? R.drawable.ic_bullet_key_permission : R.drawable.ic_text_dot);
         return getPermissionItemViewOld(context, inflater, grpName,
                 description, dangerous, icon);
@@ -275,13 +276,22 @@ public class AppSecurityPermissions {
         }
     }
 
+    private int[] getRequestedPermissionFlags(PackageInfo info) {
+        if (Build.VERSION.SDK_INT < 16) {
+            return new int[info.requestedPermissions.length];
+        }
+        return info.requestedPermissionsFlags;
+    }
+
     private void extractPerms(PackageInfo info, Set<MyPermissionInfo> permSet,
             PackageInfo installedPkgInfo) {
+
         final String[] strList = info.requestedPermissions;
-        final int[] flagsList = info.requestedPermissionsFlags;
         if ((strList == null) || (strList.length == 0)) {
             return;
         }
+        final int[] flagsList = getRequestedPermissionFlags(info);
+
         for (int i=0; i<strList.length; i++) {
             String permName = strList[i];
             // If we are only looking at an existing app, then we only
@@ -297,8 +307,7 @@ public class AppSecurityPermissions {
                     continue;
                 }
                 int existingIndex = -1;
-                if (installedPkgInfo != null
-                        && installedPkgInfo.requestedPermissions != null) {
+                if (installedPkgInfo != null && installedPkgInfo.requestedPermissions != null) {
                     for (int j=0; j<installedPkgInfo.requestedPermissions.length; j++) {
                         if (permName.equals(installedPkgInfo.requestedPermissions[j])) {
                             existingIndex = j;
@@ -306,8 +315,11 @@ public class AppSecurityPermissions {
                         }
                     }
                 }
-                final int existingFlags = existingIndex >= 0 ?
-                        installedPkgInfo.requestedPermissionsFlags[existingIndex] : 0;
+                int existingFlags = 0;
+                if (existingIndex >= 0) {
+                    final int[] instFlagsList = getRequestedPermissionFlags(installedPkgInfo);
+                    existingFlags = instFlagsList[existingIndex];
+                }
                 if (!isDisplayablePermission(tmpPermInfo, flagsList[i], existingFlags)) {
                     // This is not a permission that is interesting for the user
                     // to see, so skip it.

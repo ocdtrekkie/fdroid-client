@@ -68,23 +68,21 @@ public class AppSecurityPermissions {
     private final Context mContext;
     private final LayoutInflater mInflater;
     private final PackageManager mPm;
-    private final Map<String, MyPermissionGroupInfo> mPermGroups
-            = new HashMap<String, MyPermissionGroupInfo>();
-    private final List<MyPermissionGroupInfo> mPermGroupsList
-            = new ArrayList<MyPermissionGroupInfo>();
+    private final Map<String, MyPermissionGroupInfo> mPermGroups = new HashMap<>();
+    private final List<MyPermissionGroupInfo> mPermGroupsList = new ArrayList<>();
     private final PermissionGroupInfoComparator mPermGroupComparator = new PermissionGroupInfoComparator();
     private final PermissionInfoComparator mPermComparator = new PermissionInfoComparator();
-    private final List<MyPermissionInfo> mPermsList = new ArrayList<MyPermissionInfo>();
+    private final List<MyPermissionInfo> mPermsList = new ArrayList<>();
     private final CharSequence mNewPermPrefix;
     private String mPackageName;
 
     static class MyPermissionGroupInfo extends PermissionGroupInfo {
         CharSequence mLabel;
 
-        final ArrayList<MyPermissionInfo> mNewPermissions = new ArrayList<MyPermissionInfo>();
-        final ArrayList<MyPermissionInfo> mPersonalPermissions = new ArrayList<MyPermissionInfo>();
-        final ArrayList<MyPermissionInfo> mDevicePermissions = new ArrayList<MyPermissionInfo>();
-        final ArrayList<MyPermissionInfo> mAllPermissions = new ArrayList<MyPermissionInfo>();
+        final ArrayList<MyPermissionInfo> mNewPermissions = new ArrayList<>();
+        final ArrayList<MyPermissionInfo> mPersonalPermissions = new ArrayList<>();
+        final ArrayList<MyPermissionInfo> mDevicePermissions = new ArrayList<>();
+        final ArrayList<MyPermissionInfo> mAllPermissions = new ArrayList<>();
 
         MyPermissionGroupInfo(PermissionInfo perm) {
             name = perm.packageName;
@@ -225,31 +223,6 @@ public class AppSecurityPermissions {
             }
         }
 
-        /*
-        private void addRevokeUIIfNecessary(AlertDialog.Builder builder) {
-            if (!mShowRevokeUI) {
-                return;
-            }
-
-            final boolean isRequired =
-                    ((mPerm.mExistingReqFlags & PackageInfo.REQUESTED_PERMISSION_REQUIRED) != 0);
-
-            if (isRequired) {
-                return;
-            }
-
-            DialogInterface.OnClickListener ocl = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    PackageManager pm = getContext().getPackageManager();
-                    pm.revokePermission(mPackageName, mPerm.name);
-                    PermissionItemView.this.setVisibility(View.GONE);
-                }
-            };
-            builder.setNegativeButton(R.string.revoke, ocl);
-            builder.setPositiveButton(R.string.ok, null);
-        }
-        */
     }
 
     private AppSecurityPermissions(Context context) {
@@ -260,36 +233,15 @@ public class AppSecurityPermissions {
         mNewPermPrefix = mContext.getText(R.string.perms_new_perm_prefix);
     }
 
-    public AppSecurityPermissions(Context context, String packageName) {
-        this(context);
-        mPackageName = packageName;
-        Set<MyPermissionInfo> permSet = new HashSet<MyPermissionInfo>();
-        PackageInfo pkgInfo;
-        try {
-            pkgInfo = mPm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-        } catch (NameNotFoundException e) {
-            Log.w(TAG, "Couldn't retrieve permissions for package:"+packageName);
-            return;
-        }
-        // Extract all user permissions
-        if((pkgInfo.applicationInfo != null) && (pkgInfo.applicationInfo.uid != -1)) {
-            getAllUsedPermissions(pkgInfo.applicationInfo.uid, permSet);
-        }
-        mPermsList.addAll(permSet);
-        setPermissions(mPermsList);
-    }
-
     public AppSecurityPermissions(Context context, PackageInfo info) {
         this(context);
-        Set<MyPermissionInfo> permSet = new HashSet<MyPermissionInfo>();
-        if(info == null) {
+        final Set<MyPermissionInfo> permSet = new HashSet<>();
+        if (info == null) {
             return;
         }
         mPackageName = info.packageName;
 
-        // Convert to a PackageInfo
         PackageInfo installedPkgInfo = null;
-        // Get requested permissions
         if (info.requestedPermissions != null) {
             try {
                 installedPkgInfo = mPm.getPackageInfo(info.packageName,
@@ -298,19 +250,6 @@ public class AppSecurityPermissions {
             }
             extractPerms(info, permSet, installedPkgInfo);
         }
-        /*
-        // Get permissions related to  shared user if any
-        if (info.sharedUserId != null) {
-            int sharedUid;
-            try {
-                sharedUid = mPm.getUidForSharedUser(info.sharedUserId);
-                getAllUsedPermissions(sharedUid, permSet);
-            } catch (NameNotFoundException e) {
-                Log.w(TAG, "Couldn't retrieve shared user id for: " + info.packageName);
-            }
-        }
-        */
-        // Retrieve list of permissions
         mPermsList.addAll(permSet);
         setPermissions(mPermsList);
     }
@@ -324,20 +263,10 @@ public class AppSecurityPermissions {
             CharSequence grpName, CharSequence description, boolean dangerous) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        Drawable icon = context.getDrawable(dangerous
+        final Drawable icon = context.getDrawable(dangerous
                 ? R.drawable.ic_bullet_key_permission : R.drawable.ic_text_dot);
         return getPermissionItemViewOld(context, inflater, grpName,
                 description, dangerous, icon);
-    }
-    
-    private void getAllUsedPermissions(int sharedUid, Set<MyPermissionInfo> permSet) {
-        String sharedPkgList[] = mPm.getPackagesForUid(sharedUid);
-        if(sharedPkgList == null || (sharedPkgList.length == 0)) {
-            return;
-        }
-        for(String sharedPkg : sharedPkgList) {
-            getPermissionsForPackage(sharedPkg, permSet);
-        }
     }
     
     private void getPermissionsForPackage(String packageName, Set<MyPermissionInfo> permSet) {
@@ -351,8 +280,8 @@ public class AppSecurityPermissions {
 
     private void extractPerms(PackageInfo info, Set<MyPermissionInfo> permSet,
             PackageInfo installedPkgInfo) {
-        String[] strList = info.requestedPermissions;
-        int[] flagsList = info.requestedPermissionsFlags;
+        final String[] strList = info.requestedPermissions;
+        final int[] flagsList = info.requestedPermissionsFlags;
         if ((strList == null) || (strList.length == 0)) {
             return;
         }
@@ -539,7 +468,7 @@ public class AppSecurityPermissions {
 
         ImageView imgView = (ImageView)permView.findViewById(R.id.perm_icon);
         imgView.setImageDrawable(icon);
-        if(grpName != null) {
+        if (grpName != null) {
             permGrpView.setText(grpName);
             permDescView.setText(permList);
         } else {
@@ -618,7 +547,7 @@ public class AppSecurityPermissions {
         if (permList != null) {
             // First pass to group permissions
             for (MyPermissionInfo pInfo : permList) {
-                if(!isDisplayablePermission(pInfo, pInfo.mNewReqFlags, pInfo.mExistingReqFlags)) {
+                if (!isDisplayablePermission(pInfo, pInfo.mNewReqFlags, pInfo.mExistingReqFlags)) {
                     continue;
                 }
                 MyPermissionGroupInfo group = mPermGroups.get(pInfo.group);

@@ -294,7 +294,7 @@
                 android:value=".FDroid" />
         </activity>
         <activity
-            android:name="org.fdroid.fdroid.installer.InstallConfirmActivity"
+            android:name=".installer.InstallConfirmActivity"
             android:label=""
             android:parentActivityName=".FDroid">
             <meta-data

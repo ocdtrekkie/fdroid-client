@@ -25,6 +25,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import org.fdroid.fdroid.R;
 
@@ -63,6 +65,14 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
     private static final String TAB_ID_NEW = "new";
 
     private void startInstallConfirm() {
+
+        final Drawable appIcon = mPkgInfo.applicationInfo.loadIcon(mPm);
+        final String appLabel = (String)mPkgInfo.applicationInfo.loadLabel(mPm);
+
+        View appSnippet = findViewById(R.id.app_snippet);
+        ((ImageView)appSnippet.findViewById(R.id.app_icon)).setImageDrawable(appIcon);
+        ((TextView)appSnippet.findViewById(R.id.app_name)).setText(appLabel);
+
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         tabHost.setup();
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -205,17 +215,15 @@ public class InstallConfirmActivity extends Activity implements OnCancelListener
 
         intent = getIntent();
         mPackageURI = intent.getData();
+        final String pkgPath = mPackageURI.getPath();
 
-        //final PackageUtil.AppSnippet as;
-
-        mPkgInfo = mPm.getPackageArchiveInfo(mPackageURI.getPath(),
-                PackageManager.GET_PERMISSIONS);
-        //as = PackageUtil.getAppSnippet(this, mPkgInfo.applicationInfo, sourceFile);
+        mPkgInfo = mPm.getPackageArchiveInfo(pkgPath, PackageManager.GET_PERMISSIONS);
+        mPkgInfo.applicationInfo.sourceDir = pkgPath;
+        mPkgInfo.applicationInfo.publicSourceDir = pkgPath;
 
         setContentView(R.layout.install_start);
         mInstallConfirm = findViewById(R.id.install_confirm_panel);
         mInstallConfirm.setVisibility(View.INVISIBLE);
-        //PackageUtil.initSnippetForNewApp(this, as, R.id.app_snippet);
 
         initiateInstall();
     }

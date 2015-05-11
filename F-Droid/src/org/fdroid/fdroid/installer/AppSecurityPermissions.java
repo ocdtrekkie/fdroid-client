@@ -230,12 +230,12 @@ public class AppSecurityPermissions {
 
     public AppSecurityPermissions(Context context, PackageInfo info) {
         this(context);
-        final Set<MyPermissionInfo> permSet = new HashSet<>();
         if (info == null) {
             return;
         }
         mPackageName = info.packageName;
 
+        final Set<MyPermissionInfo> permSet = new HashSet<>();
         PackageInfo installedPkgInfo = null;
         if (info.requestedPermissions != null) {
             try {
@@ -245,9 +245,7 @@ public class AppSecurityPermissions {
             }
             extractPerms(info, permSet, installedPkgInfo);
         }
-        List<MyPermissionInfo> mPermsList = new ArrayList<>();
-        mPermsList.addAll(permSet);
-        setPermissions(mPermsList);
+        setPermissions(new ArrayList<>(permSet));
     }
 
     private int[] getRequestedPermissionFlags(PackageInfo info) {
@@ -261,7 +259,7 @@ public class AppSecurityPermissions {
             PackageInfo installedPkgInfo) {
 
         final String[] strList = info.requestedPermissions;
-        if ((strList == null) || (strList.length == 0)) {
+        if (strList == null || strList.length == 0) {
             return;
         }
         final int[] flagsList = getRequestedPermissionFlags(info);
@@ -412,37 +410,11 @@ public class AppSecurityPermissions {
 
     private PermissionItemView getPermissionItemView(MyPermissionGroupInfo grp,
             MyPermissionInfo perm, boolean first, CharSequence newPermPrefix) {
-        return getPermissionItemView(mInflater, grp, perm, first, newPermPrefix,
-                mPackageName);
-    }
-
-    private static PermissionItemView getPermissionItemView(LayoutInflater inflater,
-            MyPermissionGroupInfo grp, MyPermissionInfo perm, boolean first,
-            CharSequence newPermPrefix, String packageName) {
-        PermissionItemView permView = (PermissionItemView)inflater.inflate(
+        PermissionItemView permView = (PermissionItemView)mInflater.inflate(
                 (perm.flags & PermissionInfo.FLAG_COSTS_MONEY) != 0
                 ? R.layout.app_permission_item_money : R.layout.app_permission_item,
                 null);
-        permView.setPermission(grp, perm, first, newPermPrefix, packageName);
-        return permView;
-    }
-
-    private static View getPermissionItemViewOld(LayoutInflater inflater,
-            CharSequence grpName, CharSequence permList, Drawable icon) {
-        View permView = inflater.inflate(R.layout.app_permission_item_old, null);
-
-        TextView permGrpView = (TextView) permView.findViewById(R.id.permission_group);
-        TextView permDescView = (TextView) permView.findViewById(R.id.permission_list);
-
-        ImageView imgView = (ImageView)permView.findViewById(R.id.perm_icon);
-        imgView.setImageDrawable(icon);
-        if (grpName != null) {
-            permGrpView.setText(grpName);
-            permDescView.setText(permList);
-        } else {
-            permGrpView.setText(permList);
-            permDescView.setVisibility(View.GONE);
-        }
+        permView.setPermission(grp, perm, first, newPermPrefix, mPackageName);
         return permView;
     }
 
@@ -538,9 +510,8 @@ public class AppSecurityPermissions {
             if (pgrp.labelRes != 0 || pgrp.nonLocalizedLabel != null) {
                 pgrp.mLabel = pgrp.loadLabel(mPm);
             } else {
-                ApplicationInfo app;
                 try {
-                    app = mPm.getApplicationInfo(pgrp.packageName, 0);
+                    ApplicationInfo app = mPm.getApplicationInfo(pgrp.packageName, 0);
                     pgrp.mLabel = app.loadLabel(mPm);
                 } catch (NameNotFoundException e) {
                     pgrp.mLabel = pgrp.loadLabel(mPm);
